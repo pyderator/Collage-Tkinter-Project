@@ -12,7 +12,7 @@ class LoginPage:
         self.login()
 
     def login(self):
-
+        '''Gets data and then checks if username and password are valid or not'''
         def getData():
             try:
                 username = input_username.get()

@@ -10,6 +10,7 @@ class Connection:
             messagebox.showerror('Error','Database is not connected!! Make Sure To Connect It')
 
 class Login(Connection):
+    '''Login's the User'''
     def __init__(self,*args):
         super().__init__()
         self.login(args[0],args[1])
@@ -19,7 +20,6 @@ class Login(Connection):
              qry = """SELECT * FROM Users WHERE username=%s AND password=%s"""
              self.cursor.execute(qry,(args[0],args[1],))
              records = self.cursor.fetchall()
-             print(records)
              if records:
                  print('inside',records)
                  messagebox.showinfo('Welcome',f'Hello {records[0][1]}')
@@ -29,7 +29,7 @@ class Login(Connection):
             messagebox.showerror('Error','Something is wrong! /n Please Try Again Later')
 
 class Register(Connection):
-
+    """Registers the user"""
     def __init__(self,firstname,lastname,username,password,age,address,contact,question_id,question_answer):
 
         super().__init__()
@@ -55,10 +55,12 @@ class Register(Connection):
 
 
 class RecoverPassword(Connection):
+    '''Reset the user's password'''
     def __init__(self,*args):
         super().__init__()
 
     def login(self,*args):
+        '''Checks if user exists or not'''
         try:
              qry = """SELECT * FROM Users WHERE username=%s"""
              self.cursor.execute(qry,(args[0],))
@@ -69,9 +71,10 @@ class RecoverPassword(Connection):
              else:
                  return False
         except:
-            messagebox.showerror('Error','Something Went Wring')
+            messagebox.showerror('Error','Something Went Wrong')
 
     def recoverpassword(self,data):
+        '''Fetchs the question_id and answer of that particular question'''
         try:
             qry = "SELECT question_id,answer from Questions WHERE user_id = %s"
             self.cursor.execute(qry,(data,))
@@ -81,6 +84,7 @@ class RecoverPassword(Connection):
             messagebox.showerror('Error','Something Went Wrong!!')
 
     def changepassword(self, newpassword):
+        '''Changes the user password'''
         try:
 
             qry = "UPDATE Users SET password = %s WHERE id = %s"

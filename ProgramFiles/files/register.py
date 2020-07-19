@@ -15,6 +15,7 @@ class RegisterPage:
     def register(self):
 
         def getData():
+            '''Gets data from entry and registers them'''
             first_name = input_first_name.get()
             last_name = input_last_name.get()
             username = input_username.get()
