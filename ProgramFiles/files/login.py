@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import con_to_sql as sql_conn
 class LoginPage:
     def __init__(self,root):
@@ -13,10 +14,13 @@ class LoginPage:
     def login(self):
 
         def getData():
-            username = input_username.get()
-            password = input_password.get()
-            print(username,password)
-            a = sql_conn.Login(username,password)
+            try:
+                username = input_username.get()
+                password = input_password.get()
+                print(username,password)
+                sql_conn.Login(username,password)
+            except:
+                messagebox.showerror("Error","Username or Password is wrong")
 
         login_text = Label(self.frame_login,text='Welcome To The Bank \n Please sign in to continue',font='Nunito')
         login_text.grid(row=1,column=1)

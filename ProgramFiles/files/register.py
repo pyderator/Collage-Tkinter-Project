@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter.ttk import Combobox
+from tkinter import messagebox
 import con_to_sql as sql_conn
 class RegisterPage:
     security_questions = [{"id":1,"question":"What is your pet name?"},{"id":2,"question":"What is your first school name?"},{"id":3,"question":"What is your first love name?"}]
@@ -6,7 +8,7 @@ class RegisterPage:
         self.root = root
         root.title('Welcome To Bank')
         root.geometry('500x500')
-        self.frame_login = Frame(root,height=300,width=300)
+        self.frame_login = Frame(root,height=500,width=500)
         self.frame_login.grid(row=0,column=0)
         self.register()
 
@@ -20,13 +22,15 @@ class RegisterPage:
             address = input_address.get()
             contact = input_contact.get()
             age = input_age.get()
-            self.question = clicked.get()
+            self.question = dropdown_security_questions.get()
             question_answer = dropdown_entry.get()
-            for i in RegisterPage.security_questions:
-                if i.get('question') == self.question:
-                    question_id=i.get('id')
-            print(question_id,question_answer)
-            sql_conn.Register(first_name,last_name,username,password,age,address,contact,question_id,question_answer)
+            try:
+                for i in RegisterPage.security_questions:
+                    if i.get('question') == self.question:
+                        question_id=i.get('id')
+                sql_conn.Register(first_name,last_name,username,password,age,address,contact,question_id,question_answer)
+            except:
+                 messagebox.showerror(title="Error", message='Something went wrong please try again')
 
 
         register_text = Label(self.frame_login,text='Register Now',font='Oasis')
@@ -69,13 +73,15 @@ class RegisterPage:
 
         security_question_label = Label(self.frame_login,text='Select a security question')
         security_question_label.grid(row=9,column=1)
+
         vars = map(lambda x: x,RegisterPage.security_questions)
         data = []
         for i in vars:
             data.append(i.get('question'))
         clicked = StringVar()
         clicked.set(data[0])
-        dropdown_security_questions = OptionMenu(self.frame_login,clicked,*data)
+        dropdown_security_questions = Combobox(self.frame_login,value=data,width='25')
+        dropdown_security_questions.current(0)
         dropdown_security_questions.grid(row=9,column=2)
 
         dropdown_entry = Entry(self.frame_login)

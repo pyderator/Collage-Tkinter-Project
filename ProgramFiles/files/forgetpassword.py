@@ -52,7 +52,6 @@ class ForgetPassword:
         print("NEW Password",self.password_entry.get())
         self.initiated_data.changepassword(self.password_entry.get())
     def forgetpassword(self):
-
         def getData():
             username = input_username.get()
             self.initiated_data = sql_conn.RecoverPassword()
@@ -62,7 +61,6 @@ class ForgetPassword:
                 self.forgetpassword_frame = Frame(root,height=300,width=300)
                 self.forgetpassword_frame.pack()
                 self.RecoverPassword(username,returned_data)
-
 
         login_text = Label(self.frame_login,text='Follow The Steps To Recover Your Account',font='Nunito')
         login_text.grid(row=1,column=1)
