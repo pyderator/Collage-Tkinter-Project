@@ -24,6 +24,7 @@ class Register(Connection):
         super().__init__()
         self.register(firstname,lastname,username,password,age,address,contact)
     def register(self,*args):
-        qry ="""INSERT INTO Users values(%s,%s,%s,%s,%s,%s,%s)"""
-        self.cursor.execute(qry,(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],))
+        qry ="INSERT INTO Users (first_name,last_name,username,password,age,address,contact) values (%s,%s,%s,%s,%s,%s,%s)"
+        self.cursor.execute(qry,(args[0],args[1],args[2],args[3],args[4],args[5],args[6]))
+        self.cnx.commit()
         print('success')

@@ -1,1 +1,1 @@
-from files.register import LoginPage
+from files.login import *
