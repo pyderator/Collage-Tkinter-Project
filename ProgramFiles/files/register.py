@@ -1,11 +1,11 @@
 from tkinter import *
 import con_to_sql as sql_conn
 class RegisterPage:
+    security_questions = [{"id":1,"question":"What is your pet name?"},{"id":2,"question":"What is your first school name?"},{"id":3,"question":"What is your first love name?"}]
     def __init__(self,root):
         self.root = root
         root.title('Welcome To Bank')
         root.geometry('500x500')
-
         self.frame_login = Frame(root,height=300,width=300)
         self.frame_login.grid(row=0,column=0)
         self.register()
@@ -20,7 +20,13 @@ class RegisterPage:
             address = input_address.get()
             contact = input_contact.get()
             age = input_age.get()
-            sql_conn.Register(first_name,last_name,username,password,age,address,contact)
+            self.question = clicked.get()
+            question_answer = dropdown_entry.get()
+            for i in RegisterPage.security_questions:
+                if i.get('question') == self.question:
+                    question_id=i.get('id')
+            print(question_id,question_answer)
+            sql_conn.Register(first_name,last_name,username,password,age,address,contact,question_id,question_answer)
 
 
         register_text = Label(self.frame_login,text='Register Now',font='Oasis')
@@ -60,6 +66,20 @@ class RegisterPage:
         input_age_text.grid(row=8,column=1)
         input_age = Entry(self.frame_login)
         input_age.grid(row=8,column=2)
+
+        security_question_label = Label(self.frame_login,text='Select a security question')
+        security_question_label.grid(row=9,column=1)
+        vars = map(lambda x: x,RegisterPage.security_questions)
+        data = []
+        for i in vars:
+            data.append(i.get('question'))
+        clicked = StringVar()
+        clicked.set(data[0])
+        dropdown_security_questions = OptionMenu(self.frame_login,clicked,*data)
+        dropdown_security_questions.grid(row=9,column=2)
+
+        dropdown_entry = Entry(self.frame_login)
+        dropdown_entry.grid(row=10,column=2)
 
         button_login = Button(text='Login',command=getData)
         button_login.grid(row=4,column=1)
