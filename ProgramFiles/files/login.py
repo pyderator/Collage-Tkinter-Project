@@ -1,4 +1,5 @@
 from tkinter import *
+import con_to_sql as sql_conn
 class LoginPage:
     def __init__(self,root):
         self.root = root
@@ -13,7 +14,9 @@ class LoginPage:
 
         def getData():
             username = input_username.get()
-            username = input_password.get()
+            password = input_password.get()
+            print(username,password)
+            a = sql_conn.Login(username,password)
 
         login_text = Label(self.frame_login,text='Welcome To The Bank \n Please sign in to continue',font='Nunito')
         login_text.grid(row=1,column=1)
@@ -30,9 +33,6 @@ class LoginPage:
 
         button_login = Button(text='Login',command=getData)
         button_login.grid(row=4,column=1)
-
-
-
 
 
 
