@@ -79,8 +79,6 @@ class RegisterPage:
         data = []
         for i in vars:
             data.append(i.get('question'))
-        clicked = StringVar()
-        clicked.set(data[0])
         dropdown_security_questions = Combobox(self.frame_login,value=data,width='25')
         dropdown_security_questions.current(0)
         dropdown_security_questions.grid(row=9,column=2)

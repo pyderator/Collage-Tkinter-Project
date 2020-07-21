@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import messagebox
-import con_to_sql as sql_conn
+try:
+    from . import con_to_sql as sql_conn
+except:
+    import con_to_sql as sql_conn
 class LoginPage:
     def __init__(self,root):
         self.root = root
@@ -15,10 +18,14 @@ class LoginPage:
         '''Gets data and then checks if username and password are valid or not'''
         def getData():
             try:
-                username = input_username.get()
-                password = input_password.get()
-                print(username,password)
-                sql_conn.Login(username,password)
+                self.username = input_username.get()
+                self.password = input_password.get()
+                try:
+                    Connection()
+                except:
+                    messagebox.showerror("Error","No Response From Database")
+                    return False
+                sql_conn.Login(self.username,self.password)
             except:
                 messagebox.showerror("Error","Username or Password is wrong")
 

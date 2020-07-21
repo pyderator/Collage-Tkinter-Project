@@ -1,13 +1,14 @@
 import mysql.connector
 from tkinter import messagebox
+import sys
 class Connection:
-
     def __init__(self):
         try:
             self.cnx = mysql.connector.connect(user='root', password='', host='127.0.0.1',database='Bank_Users')
             self.cursor = self.cnx.cursor()
         except:
             messagebox.showerror('Error','Database is not connected!! Make Sure To Connect It')
+            sys.exit()
 
 class Login(Connection):
     '''Login's the User'''
