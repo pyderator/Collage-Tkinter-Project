@@ -104,9 +104,9 @@ class AdminInt:
         self.rejval.set(result[10])
         self.input_reject_text = Label(self.dataframe,text='Reject',font='Nunito')
         self.input_reject_text.grid(row=12,column=1)
-        self.radiobtn1 = Radiobutton(self.dataframe,variable=self.rejval,text='Accept',value=1,command=self.select)
+        self.radiobtn1 = Radiobutton(self.dataframe,variable=self.rejval,text='Accept',value=1)
         self.radiobtn1.grid(row=12,column=2)
-        self.radiobtn2 = Radiobutton(self.dataframe,variable=self.rejval,text='Reject',value=0,command=self.select)
+        self.radiobtn2 = Radiobutton(self.dataframe,variable=self.rejval,text='Reject',value=0)
         self.radiobtn2.grid(row=12,column=3)
 
 
@@ -123,9 +123,7 @@ class AdminInt:
         self.button_red.grid(row=15,column=1)
 
     def createacc(self):
-        print(self.user_id,self.input_first_name.get(),self.input_last_name.get(),self.input_fathersname.get(),self.input_mothersname.get(),self.input_age.get(),self.input_contact.get(),uuid.uuid4(),str(date.today()),self.input_address.get())
-        self.ins.insertuser(self.acc_id,self.input_first_name.get(),self.input_last_name.get(),self.input_fathersname.get(),self.input_mothersname.get(),self.input_age.get(),self.input_contact.get(),str(uuid.uuid4()),date.today(),self.input_address.get())
+        self.ins.insertuser(self.acc_id,self.input_first_name.get(),self.input_last_name.get(),self.input_fathersname.get(),self.input_mothersname.get(),self.input_age.get(),self.input_contact.get(),str(uuid.uuid4()),str(date.today()),self.input_address.get())
+        self.ins.updaterejection(self.user_id,self.rejval.get())
     def updateonly(self):
         self.ins.updateremarks(self.user_id,self.input_remark.get())
-    def select(self):
-        print(self.rejval.get())
