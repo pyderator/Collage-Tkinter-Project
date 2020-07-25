@@ -1,4 +1,6 @@
 from tkinter import *
+from dashboard import Dashboard
+from admininterface import AdminInt
 from tkinter import messagebox
 try:
     from . import con_to_sql as sql_conn
@@ -16,18 +18,19 @@ class LoginPage:
 
     def login(self):
         '''Gets data and then checks if username and password are valid or not'''
-        def getData():
-            try:
-                self.username = input_username.get()
-                self.password = input_password.get()
-                try:
-                    Connection()
-                except:
-                    messagebox.showerror("Error","No Response From Database")
-                    return False
-                sql_conn.Login(self.username,self.password)
-            except:
-                messagebox.showerror("Error","Username or Password is wrong")
+        def getData(*args):
+
+            self.username = input_username.get()
+            self.password = input_password.get()
+            haslogged = sql_conn.Login(self.username,self.password)
+            if haslogged.islogged:
+                if haslogged.isadmin:
+                    admin = Toplevel(self.root)
+                    AdminInt(admin)
+                else:
+                    self.root.withdraw()
+                    dashboard_root = Toplevel(self.root)
+                    Dashboard(dashboard_root,self.username,haslogged.user_id)
 
         login_text = Label(self.frame_login,text='Welcome To The Bank \n Please sign in to continue',font='Nunito')
         login_text.grid(row=1,column=1)
@@ -44,6 +47,8 @@ class LoginPage:
 
         button_login = Button(text='Login',command=getData)
         button_login.grid(row=4,column=1)
+        self.root.bind('<Return>',getData)
+        print()
 
 
 

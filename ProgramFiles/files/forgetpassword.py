@@ -8,10 +8,10 @@ class ForgetPassword:
 
     def __init__(self,root):
         self.root = root
-        root.title('Welcome To Bank')
-        root.geometry('500x500')
+        self.root.title('Welcome To Bank')
+        self.root.geometry('500x500')
 
-        self.frame_login = Frame(root,height=300,width=300)
+        self.frame_login = Frame(self.root,height=300,width=300)
         self.frame_login.grid(row=0,column=0)
         self.forgetpassword()
 
@@ -25,7 +25,7 @@ class ForgetPassword:
             returned_data = self.initiated_data.login(username)
             if returned_data:
                 self.frame_login.destroy()
-                self.forgetpassword_frame = Frame(root,height=300,width=300)
+                self.forgetpassword_frame = Frame(self.root,height=300,width=300)
                 self.forgetpassword_frame.pack()
                 self.RecoverPassword(username,returned_data)
 
@@ -68,7 +68,7 @@ class ForgetPassword:
 
     def changepassword(self,user_id):
         '''Asks the user for the new password and then triggers another function to change the password'''
-        self.changepassword_frame = Frame(root,height=300,width=300)
+        self.changepassword_frame = Frame(self.root,height=300,width=300)
         self.changepassword_frame.pack()
         label_text = Label(self.changepassword_frame,text='Enter Your New Password')
         label_text.grid(column=0,row=0)
@@ -81,7 +81,3 @@ class ForgetPassword:
         '''Finally changes the password'''
         print("NEW Password",self.password_entry.get())
         self.initiated_data.changepassword(self.password_entry.get())
-
-root = Tk()
-ForgetPassword(root)
-root.mainloop()

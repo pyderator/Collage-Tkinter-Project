@@ -79,14 +79,14 @@ class RegisterPage:
         data = []
         for i in vars:
             data.append(i.get('question'))
-        dropdown_security_questions = Combobox(self.frame_login,value=data,width='25')
+        dropdown_security_questions = Combobox(self.frame_login,value=data,width='25',state='readonly')
         dropdown_security_questions.current(0)
         dropdown_security_questions.grid(row=9,column=2)
 
         dropdown_entry = Entry(self.frame_login)
         dropdown_entry.grid(row=10,column=2)
 
-        button_login = Button(text='Login',command=getData)
+        button_login = Button(text='Register',command=getData)
         button_login.grid(row=4,column=1)
 
 
