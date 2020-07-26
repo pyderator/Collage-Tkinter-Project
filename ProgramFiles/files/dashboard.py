@@ -2,9 +2,13 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import Combobox
 # forget password
+from fpdf import FPDF, HTMLMixin
+import random
+import string
 from con_to_sql import AccStats
 from forgetpassword import ForgetPassword
 from acc_reg import RegisterAccount
+from datetime import date
 class Dashboard:
     def __init__(self,root,username,user_id):
 
@@ -60,7 +64,6 @@ class Dashboard:
             self.fetch_data()
             self.acc_combobox.bind('<<ComboboxSelected>>',self.fetch_data)
     def fetch_data(self,*args):
-        print('fetching')
         self.bal_frame.destroy()
         # Re-rendering the frame
         self.bal_frame = Frame(self.root,height=300,width=300)
@@ -106,27 +109,78 @@ class Dashboard:
         self.amount_entry = Entry(self.bal_frame)
         self.amount_entry.grid(row=7,column=1)
 
+        self.amount_text_invoice = Label(self.bal_frame,text='Invoice')
+        self.amount_text_invoice.grid(row=8,column=0)
+        self.amount_entry_invoice = Entry(self.bal_frame)
+        self.amount_entry_invoice.grid(row=8,column=1)
+
         self.sendMoney = Button(self.bal_frame,text='Send Money',command=self.send_money)
-        self.sendMoney.grid(row=8,column=0)
+        self.sendMoney.grid(row=9,column=0)
 
         self.esewabanner = Label(self.bal_frame,text='Load E-Sewa')
-        self.esewabanner.grid(row=9,column=0)
+        self.esewabanner.grid(row=10,column=0)
 
-        self.amountesewa_text = Label(self.bal_frame,text='Amount')
-        self.amountesewa_text.grid(row=10,column=0)
+        self.amountesewa_text = Label(self.bal_frame,text='Invoice')
+        self.amountesewa_text.grid(row=11,column=0)
         self.amount_entry_esewa = Entry(self.bal_frame)
-        self.amount_entry_esewa.grid(row=10,column=1)
+        self.amount_entry_esewa.grid(row=11,column=1)
 
         self.amountesewa_text_number = Label(self.bal_frame,text='Number')
-        self.amountesewa_text_number.grid(row=11,column=0)
+        self.amountesewa_text_number.grid(row=12,column=0)
         self.number_entry_esewa = Entry(self.bal_frame)
-        self.number_entry_esewa.grid(row=11,column=1)
+        self.number_entry_esewa.grid(row=12,column=1)
+
+        self.amountesewa_text_transactionInvoice = Label(self.bal_frame,text='Number')
+        self.amountesewa_text_transactionInvoice.grid(row=13,column=0)
+        self.number_entry_transactionInvoice = Entry(self.bal_frame)
+        self.number_entry_transactionInvoice.grid(row=13,column=1)
+
         self.loadesewa = Button(self.bal_frame,text='Load Esewa',command=self.load_esewa)
-        self.loadesewa.grid(row=12,column=0)
+        self.loadesewa.grid(row=13,column=0)
 
     def send_money(self):
         if self.accstats.transactions(self.send_moneycb.get(),self.acc_combobox.get(),self.amount_entry.get()):
-            messagebox.showinfo('Message','Payment Successful')
-            
+            msgbox = messagebox.askquestion('Message',f'Payment Successful \n Do You Want To Save Transaction')
+            if msgbox == 'yes':
+                html2pdf(self.user,self.acc_combobox.get(),self.send_moneycb.get(),self.amount_entry.get(),self.amount_entry_invoice.get())
+
     def load_esewa(self):
-        self.accstats.esewa(self.number_entry_esewa.get(),self.acc_combobox.get(),self.amount_entry_esewa.get())
+        if self.accstats.esewa(self.number_entry_esewa.get(),self.acc_combobox.get(),self.amount_entry_esewa.get()):
+            msgbox = messagebox.askquestion('Message',f'Payment Successful \n Do You Want To Save Transaction')
+            if msgbox == 'yes':
+                html2pdf(self.user,self.acc_combobox.get(),self.number_entry_esewa.get(),self.send_moneycb.get(),self.number_entry_transactionInvoice.get())
+
+
+
+class HTML2PDF(FPDF, HTMLMixin):
+    pass
+
+def html2pdf(sender_name,sender_acc,receiver,amount,invoice):
+    transaction_id = ''.join(random.choice(string.hexdigits) for i in range(20))
+    html = f'''
+    <div style="width: 50%; margin: auto;">
+        <h1 style="font-size: 30px; font-family: Nunito;text-align: center;">Bank Transaction</h1>
+        <div style="padding: 50px 0 0 0;display: flex;width: 100%;justify-content: space-around;">
+            <p style="font-family: Nunito; font-weight: 600;">Transaction Id: {transaction_id}</p>
+            <p style="font-family: Nunito; font-weight: 600;">Date: {str(date.today())}</p>
+        </div>
+        <div style="display: flex;justify-content: space-around;flex-wrap: wrap;">
+            <p style="font-family: Nunito; font-weight: 600;">Sender Name: {sender_name}</p>
+            <p style="font-family: Nunito; font-weight: 600;">Account Id: {sender_acc}</p>
+            <p style="font-family: Nunito; font-weight: 600;">Amount Sent: {amount}</p>
+            <p style="font-family: Nunito; font-weight: 400;">Invoice: {invoice}</p>
+        </div>
+        <div style="display: flex;justify-content: space-around;flex-wrap: wrap;">
+            <p style="font-family: Nunito; font-weight: 600;">Receiver Account Id: {receiver}</p>
+        </div>
+        <div style="display: flex;justify-content: flex-end;flex-wrap: wrap;">
+            <p style="font-family: Nunito; font-weight: 600;">Checked By: Online Transaction</p>
+        </div>
+    </div>
+    '''
+
+
+    pdf = HTML2PDF()
+    pdf.add_page()
+    pdf.write_html(html)
+    pdf.output(f'/home/pyderator/Documents/tkinterproject/myself/Collage-Tkinter-Project/ProgramFiles/invoice/{str(sender_name)+str(transaction_id)}.pdf')

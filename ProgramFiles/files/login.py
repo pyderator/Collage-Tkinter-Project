@@ -25,13 +25,13 @@ class LoginPage:
             self.password = input_password.get()
             haslogged = sql_conn.Login(self.username,self.password)
             if haslogged.islogged:
-                if haslogged.isadmin:
-                    admin = Toplevel(self.root)
-                    AdminInt(admin)
-                else:
-                    self.root.withdraw()
-                    dashboard_root = Toplevel(self.root)
-                    Dashboard(dashboard_root,self.username,haslogged.user_id)
+                # if haslogged.isadmin:
+                #     admin = Toplevel(self.root)
+                #     AdminInt(admin)
+                # else:
+                self.root.withdraw()
+                dashboard_root = Toplevel(self.root)
+                Dashboard(dashboard_root,self.username,haslogged.user_id)
 
         login_text = Label(self.frame_login,text='Welcome To The Bank \n Please sign in to continue',font='Nunito')
         login_text.grid(row=1,column=1)

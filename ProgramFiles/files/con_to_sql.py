@@ -182,6 +182,7 @@ class AccStats(Connection):
         return self.cursor.fetchall()
 
     def transactions(self,*args):
+        print('the rags',args)
         qry1= "SELECT id from Accounts where Account_id = %s"
         qry2= "SELECT id from Accounts where Account_id = %s"
         qry3= "UPDATE Balance SET Debit_Amount = Debit_Amount+ %s WHERE acc_id = %s";
