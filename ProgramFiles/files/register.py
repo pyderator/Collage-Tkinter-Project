@@ -86,11 +86,5 @@ class RegisterPage:
         dropdown_entry = Entry(self.frame_login)
         dropdown_entry.grid(row=10,column=2)
 
-        button_login = Button(text='Register',command=getData)
+        button_login = Button(self.root,text='Register',command=getData)
         button_login.grid(row=4,column=1)
-
-
-
-root = Tk()
-RegisterPage(root)
-root.mainloop()
