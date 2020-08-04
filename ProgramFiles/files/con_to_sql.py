@@ -226,3 +226,30 @@ class AccStats(Connection):
         self.cursor.execute(qry2,(args[0],from_))
         self.cnx.commit()
         return True
+
+
+class PendingAccount(Connection):
+    def __init__(self,user_id):
+        super().__init__()
+        self.user_id = user_id
+        qry1 = "SELECT * FROM Acc_to_check where is_rejectable=0 AND user_id = %s"
+        self.cursor.execute(qry1,(user_id,))
+        self.accs = self.cursor.fetchall()
+
+    def searchid(self):
+        qry = "SELECT First_Name,Last_Name,Fathers_Name,Mothers_Name,Age,Citizenship_Number,Location,Contact,Education,Work,Remarks,id,user_id FROM Acc_to_check WHERE user_id=%s"
+        self.cursor.execute(qry,(self.user_id,))
+        self.parAcc = self.cursor.fetchone()
+        print(self.parAcc)
+        return self.parAcc
+
+    def updateacc(self,*args):
+        try:
+            qry = "UPDATE Acc_to_check SET First_Name = %s,Last_Name = %s,Fathers_Name = %s,Mothers_Name = %s,Age = %s,Citizenship_Number=%s,Location=%s,Contact=%s,Education=%s,Work=%s WHERE id = %s"
+            values = (args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],)
+            self.cursor.execute(qry,values)
+            self.cnx.commit()
+        except:
+            messagebox.showerror("Error","Something Went Wrong")
+        else:
+            messagebox.showinfo(":)","Successfully Updated.!!")

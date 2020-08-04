@@ -28,8 +28,10 @@ class AdminInt:
         self.idsel.grid(row=1,column=1)
         self.show_data()
     def show_data(self,*args):
+
         # if self.dataframe:
         #     self.database.destroy()
+
         self.user_id = int(self.idsel.get().split()[-1])
         result = self.ins.searchid(self.user_id)
 
