@@ -1,25 +1,22 @@
 from tkinter import *
-import uuid
+from tkinter import messagebox
 from tkinter.ttk import Combobox
-from datetime import date
-from con_to_sql import AdminInterface, Account_manager
 
-class AdminInt:
-    def __init__(self,root):
+from con_to_sql import Account_manager
 
+class PendingAccounts:
+    def __init__(self, root):
         self.root = root
-        self.root.title('Welcome Admin')
+        self.root.title("Pending Accounts")
+
 
         self.tree_view_frame = Frame(self.root, height=400 , width=200)
         self.tree_view_frame.pack()
-
         self.dataframe = Frame(self.root, height=400 , width=200)
         self.dataframe.pack()
 
-        self.show_data(AdminInterface().pending_account_info())
-        
-    def show_data(self, datas):
 
+    def show_data(self, datas):
         scroll_x1 = Scrollbar(self.tree_view_frame, orient=HORIZONTAL)
         scroll_y1 = Scrollbar(self.tree_view_frame, orient=VERTICAL)
 
@@ -120,19 +117,14 @@ class AdminInt:
         self.input_remark = Entry(self.dataframe, font='Nunito 16')
         self.input_remark.grid(row=5,column=1,padx=10,pady=10)
 
-        self.button_red = Button(self.dataframe, text='Update Info | Remarks',command=self.updateinfo, font='Nunito 16',width=100)
-        self.button_red.grid(row=6,columnspan=4,padx=10,pady=10)
-
-        self.button_green = Button(self.dataframe, text='Create Account',command=self.createacc, font='Nunito 16',width=100)
-        self.button_green.grid(row=7, columnspan=4,padx=10,pady=10)
-
+        self.button_red = Button(self.dataframe, text='Update',command=self.updateinfo, font='Nunito 16',width=100)
+        self.button_red.grid(row=6,columnspan=4)
 
     def entry_data(self,event):
-
         self.tree_view_items = self.account_view.selection()
         self.result = self.account_view.item(self.tree_view_items,'values')
         self.account_id = self.account_view.item(self.tree_view_items,'text')
-
+        
         self.input_first_name.delete('0','end')
         self.input_last_name.delete('0','end')
         self.input_fathersname.delete('0','end')
@@ -143,7 +135,9 @@ class AdminInt:
         self.input_contact.delete('0','end')
         self.input_education.delete('0','end')
         self.input_work.delete('0','end')
+        self.input_remark.config(state='normal')
         self.input_remark.delete('0','end')
+        # self.input_remark.config(state='normal')
 
         self.input_first_name.insert(0,self.result[0])
         self.input_last_name.insert(0, self.result[1])
@@ -156,43 +150,34 @@ class AdminInt:
         self.input_education.insert(0,self.result[8])
         self.input_work.insert(0,self.result[9])
         self.input_remark.insert(0, self.result[10])
+        self.input_remark.config(state='disabled')
 
     def updateinfo(self):
-
-        sql_names = ['First_Name', 'Last_Name', 'Fathers_Name', 'Mothers_Name', 'Age', 'Citizenship_Number', 'Location', 'Contact', 'Education', 'Work','Remarks']
+        sql_names = ['First_Name', 'Last_Name', 'Fathers_Name', 'Mothers_Name', 'Age', 'Citizenship_Number', 'Location', 'Contact', 'Education', 'Work']
         new_values = [self.input_first_name.get(),self.input_last_name.get(),
         self.input_fathersname.get(),self.input_mothersname.get(),
         self.input_age.get(),self.input_citizenshipnumber.get(),
         self.input_address.get(),self.input_contact.get(),
-        self.input_education.get(),self.input_work.get(),self.input_remark.get()]
-        old_values = self.result[:]
+        self.input_education.get(),self.input_work.get()]
+        old_values = self.result[0:-1]
+
         if list(new_values) == list(old_values):
             messagebox.showinfo('Dear User','Everything is same')
             return False
         updated_values = []
+
         for i in range(len(old_values)):
             if old_values[i] != new_values[i]:
                 updated_values.append({sql_names[i]: new_values[i]})
         
         resp = Account_manager().update_pending_acc(updated_values,self.account_id)
+
         if resp:
             messagebox.showinfo('Success','Updated Successfully')
-
+            
             # Pointing the self.result to the new_values so that on next update it compares it with
             # the new values instead of the old fetched value.
             self.result = new_values
+
         else:
             messagebox.showerror('Error','Somthing went wrong')
-
-
-    def createacc(self):
-
-        response = AdminInterface().create_user_account(self.account_id, self.input_first_name.get(),self.input_last_name.get(),
-        self.input_fathersname.get(),self.input_mothersname.get(),
-        self.input_age.get(),self.input_contact.get(),str(uuid.uuid4()),str(date.today()),
-        self.input_address.get())
-
-        if response:
-            messagebox.showinfo('Success','Account Created Successfully')
-        else:
-            messagebox.showinfo('Error','Something Went Wrong')

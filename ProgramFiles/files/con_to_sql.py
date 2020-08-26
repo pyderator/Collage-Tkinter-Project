@@ -2,65 +2,76 @@ import mysql.connector
 from tkinter import messagebox
 import sys
 class Connection:
+
     def __init__(self):
         try:
             self.cnx = mysql.connector.connect(user='root', password='', host='127.0.0.1',database='Bank_Users')
-            self.cursor = self.cnx.cursor()
+            self.cursor = self.cnx.cursor(buffered=True)
         except:
             messagebox.showerror('Error','Database is not connected!! Make Sure To Connect It')
             sys.exit()
+            
+
 
 class Login(Connection):
     '''Login's the User'''
-    def __init__(self,*args):
+
+    def __init__(self,):
+
         super().__init__()
         self.islogged = False
-        self.login(args[0],args[1])
 
-    def login(self,*args):
+    def login(self,username,password):
+
         try:
-             qry = """SELECT * FROM Users WHERE username=%s AND password=%s"""
-             self.cursor.execute(qry,(args[0],args[1],))
+             qry = """ SELECT * FROM Users WHERE username=%s AND password=%s """
+             self.cursor.execute(qry,(username,password,))
              records = self.cursor.fetchone()
-             print(records)
+
              if len(records) > 0:
                  messagebox.showinfo('Welcome',f'Hello {records[1]}')
                  self.islogged = True
                  self.user_id = records[0]
-                 self.isadmin = records[-1]
+                 if records[-1] == 'admin':
+                     self.is_admin=True
+                 else:
+                     self.is_admin= False
              else:
                  messagebox.showerror('Opps','Something is wrong')
         except:
             messagebox.showerror('Error','Username or password is wrong')
             return False
 
+
 class Register(Connection):
     """Registers the user"""
-    def __init__(self,firstname,lastname,username,password,age,address,contact,question_id,question_answer):
 
+    def __init__(self):
         super().__init__()
-        self.register(firstname,lastname,username,password,age,address,contact,question_id,question_answer)
 
     def register(self,*args):
-        try:
 
+        try:
             qry1 ="INSERT INTO Users (first_name,last_name,username,password,age,address,contact) values (%s,%s,%s,%s,%s,%s,%s)"
             self.cursor.execute(qry1,(args[0],args[1],args[2],args[3],args[4],args[5],args[6]))
             self.cnx.commit()
 
             qry2 = "SELECT id from Users WHERE username = %s"
             self.cursor.execute(qry2,(args[2],))
-            user_id = self.cursor.fetchall()
-            user_id_id =user_id[0][0]
+            user_id = self.cursor.fetchone()[0]
 
             qry3 = 'INSERT INTO Questions (user_id,Question_id,answer) values (%s,%s,%s)'
-            self.cursor.execute(qry3,(user_id_id,args[7],args[8]))
+            self.cursor.execute(qry3,(user_id,args[7],args[8]))
             self.cnx.commit()
+            return True
+
         except:
-            messagebox.showerror('Error','Something Went Wrong!!')
+
+            return False
 
 
 class RecoverPassword(Connection):
+
     '''Reset the user's password'''
     def __init__(self,*args):
         super().__init__()
@@ -99,7 +110,9 @@ class RecoverPassword(Connection):
         except:
             messagebox.showerror('Error','Something Went Wrong!!')
 
+
 class AccRegAdmin(Connection):
+    """  Registers an account and sends to user for verification  """
 
     def __init__(self,*args):
         self.isregistered=False
@@ -107,149 +120,163 @@ class AccRegAdmin(Connection):
         self.regacc(*args)
 
     def regacc(self,*args):
-        print(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9])
+
         qry = "INSERT INTO Acc_to_check (user_id,First_Name,Last_Name,Fathers_Name,Mothers_Name,Age,Citizenship_Number,Location,Contact,Education,Work) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         self.cursor.execute(qry, (args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],))
         self.cnx.commit()
         self.isregistered=True
 
 
-class AdminInterfaceQuy(Connection):
-    def __init__(self,*args):
-        super().__init__()
-        qry = "SELECT COUNT(*) FROM Acc_to_check where is_rejectable=0"
+class Account_manager(Connection):
+    """Looks after the user accounts"""
+
+    def __init__(self, user_id=None):
+        super(Account_manager, self).__init__()
+        self.user_id = user_id
+
+    def fetch_account_info(self):
+        qry = f"""
+
+            SELECT a.id, a.Account_id, a.created_time,b.Credit_Amount, b.Debit_Amount
+            FROM Accounts AS a
+            JOIN Balance AS b ON a.id = b.acc_id WHERE a.user_id = {self.user_id} ORDER BY first_name desc
+
+        """
         self.cursor.execute(qry)
-        self.totacc = self.cursor.fetchall()
+        res = self.cursor.fetchall()
+        return res
 
-        qry1 = "SELECT * FROM Acc_to_check where is_rejectable=0"
-        self.cursor.execute(qry1)
-        self.accs = self.cursor.fetchall()
-    def searchid(self,user_id):
-        qry = "SELECT First_Name,Last_Name,Fathers_Name,Mothers_Name,Age,Citizenship_Number,Location,Contact,Education,Work,is_rejectable,Remarks,user_id FROM Acc_to_check WHERE id=%s"
-        self.cursor.execute(qry,(user_id,))
-        self.parAcc = self.cursor.fetchone()
-        return self.parAcc
+    def pending_account_info(self):
+        qry = f"""
 
-    def insertuser(self,*args):
-        qry = "INSERT INTO Accounts (user_id,first_name,last_name,fathersname,mothersname,age,contact,Account_id,created_time,location) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-        qry2 = "INSERT INTO Balance(acc_id,Credit_Amount,Debit_Amount) VALUES (%s,%s,%s)"
-        qry1 = "SELECT id FROM Accounts WHERE Account_id = %s"
-        self.cursor.execute(qry,(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],))
-        self.cnx.commit()
-        print('111',args[0])
-        self.cursor.execute(qry1,(args[7],))
-        acc_id = self.cursor.fetchone()[0]
+            SELECT id, First_Name, Last_Name, Fathers_Name, Mothers_Name, Age, Citizenship_Number, Location, Contact, Education, Work, Remarks FROM Acc_to_check WHERE Acc_to_check.user_id = {self.user_id} AND Acc_to_check.is_rejectable=0
 
-        self.cursor.execute(qry2,(acc_id,0,0))
-        self.cnx.commit()
-    def updateremarks(self,*args):
-        print(args)
-        qry = "UPDATE Acc_to_check SET Remarks = %s WHERE id = %s"
-        self.cursor.execute(qry,(args[1],args[0],))
-        self.cnx.commit()
-
-    def updaterejection(self,*args):
-        qry = "UPDATE Acc_to_check SET is_rejectable = %s WHERE id = %s"
-        self.cursor.execute(qry,(args[1],args[0],))
-        self.cnx.commit()
-
-
-class AccStats(Connection):
-    def __init__(self,user_id):
-        self.user_id = user_id
-        print(self.user_id)
-        super(AccStats,self).__init__()
-
-    def fetchinfo(self):
-        qry = "SELECT Account_id FROM Accounts WHERE user_id = %s"
-        self.cursor.execute(qry,(self.user_id,))
+        """
+        self.cursor.execute(qry)
         return self.cursor.fetchall()
 
-    def accountinfo(self,*args):
-        qry1 = "SELECT id,first_name,last_name,created_time FROM Accounts WHERE Account_id = %s"
-        self.cursor.execute(qry1,(args[0],))
-        acc_info =  self.cursor.fetchone()
-
-        qry2 = "SELECT Credit_Amount,Debit_Amount FROM Balance WHERE acc_id = %s"
-        self.cursor.execute(qry2,(acc_info[0],))
-        balance_info = self.cursor.fetchone()
-
-        return (acc_info,balance_info)
-
-    def getallacc(self):
-        qry1 = "SELECT Account_id FROM Accounts"
-        self.cursor.execute(qry1)
-        return self.cursor.fetchall()
-
-    def transactions(self,*args):
-        print('the rags',args)
-        qry1= "SELECT id from Accounts where Account_id = %s"
-        qry2= "SELECT id from Accounts where Account_id = %s"
-        qry3= "UPDATE Balance SET Debit_Amount = Debit_Amount+ %s WHERE acc_id = %s";
-        qry4= "UPDATE Balance SET Debit_Amount = Debit_Amount - %s WHERE acc_id = %s";
-        qry5 = "SELECT Debit_Amount FROM Balance WHERE acc_id=%s"
-        #to,from,amount
-        self.cursor.execute(qry1,(args[0],))
-        to_ = self.cursor.fetchone()[0]
-        self.cursor.execute(qry2,(args[1],))
-        from_ = self.cursor.fetchone()[0]
-
-        from_balance = self.cursor.execute(qry5,(from_,))
-        balance = self.cursor.fetchone()[0]
-        if int(balance) < int(args[2]):
-            messagebox.showerror('Error',f"Not Enough Balance. Total Balance Aviliable is {balance}")
-            return False
-
-        self.cursor.execute(qry3,(args[2],to_))
-        self.cnx.commit()
-
-        self.cursor.execute(qry4,(args[2],from_))
-        self.cnx.commit()
-        return True
-
-    def esewa(self,*args):
-        qry1= "SELECT id from Accounts where Account_id = %s"
-        qry2= "UPDATE Balance SET Debit_Amount = Debit_Amount - %s WHERE acc_id = %s";
-        qry3 = "SELECT Debit_Amount FROM Balance WHERE acc_id=%s"
-
-        #to,from,amount
-        self.cursor.execute(qry1,(args[1],))
-        from_ = self.cursor.fetchone()[0]
-
-
-        from_balance = self.cursor.execute(qry3,(from_,))
-        balance = self.cursor.fetchone()[0]
-        if int(balance) < int(args[2]):
-            messagebox.showerror('Error',f"Not Enough Balance. Total Balance Aviliable is {balance}")
-            return False
-
-        self.cursor.execute(qry2,(args[0],from_))
-        self.cnx.commit()
-        return True
-
-
-class PendingAccount(Connection):
-    def __init__(self,user_id):
-        super().__init__()
-        self.user_id = user_id
-        qry1 = "SELECT * FROM Acc_to_check where is_rejectable=0 AND user_id = %s"
-        self.cursor.execute(qry1,(user_id,))
-        self.accs = self.cursor.fetchall()
-
-    def searchid(self):
-        qry = "SELECT First_Name,Last_Name,Fathers_Name,Mothers_Name,Age,Citizenship_Number,Location,Contact,Education,Work,Remarks,id,user_id FROM Acc_to_check WHERE user_id=%s"
-        self.cursor.execute(qry,(self.user_id,))
-        self.parAcc = self.cursor.fetchone()
-        print(self.parAcc)
-        return self.parAcc
-
-    def updateacc(self,*args):
+    def update_pending_acc(self,data,acc_id):
         try:
-            qry = "UPDATE Acc_to_check SET First_Name = %s,Last_Name = %s,Fathers_Name = %s,Mothers_Name = %s,Age = %s,Citizenship_Number=%s,Location=%s,Contact=%s,Education=%s,Work=%s WHERE id = %s"
-            values = (args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],)
-            self.cursor.execute(qry,values)
+            text = 'UPDATE Acc_to_check SET '
+            for i in range(len(data)):
+            	for j,k in data[i].items():
+            		text += f"{j} = '{k}',"
+
+            qry = text[:-1] + f' WHERE id = {acc_id}'
+            self.cursor.execute(qry)
             self.cnx.commit()
-        except:
-            messagebox.showerror("Error","Something Went Wrong")
+        except Exception as e:
+            return False
         else:
-            messagebox.showinfo(":)","Successfully Updated.!!")
+            return True
+
+
+class AdminInterface(Connection):
+
+    def __init__(self):
+        super().__init__()
+
+    def pending_account_info(self):
+        qry = f"""
+
+            SELECT id, First_Name, Last_Name, Fathers_Name, Mothers_Name, Age, Citizenship_Number, Location, Contact, Education, Work, Remarks FROM Acc_to_check WHERE Acc_to_check.is_rejectable=0
+
+        """
+        self.cursor.execute(qry)
+        return self.cursor.fetchall()
+
+    def update_pending_acc(self,data,acc_id):
+        try:
+            text = 'UPDATE Acc_to_check SET '
+            for i in range(len(data)):
+            	for j,k in data[i].items():
+            		text += f"{j} = '{k}',"
+
+            qry = text[:-1] + f' WHERE id = {acc_id}'
+            self.cursor.execute(qry)
+            self.cnx.commit()
+        except Exception as e:
+            return False
+        else:
+            return True
+
+    def create_user_account(self, acc_id, first_name, last_name, fathersname, mothersname, age, contact, account_id, created_time, location):
+        try:
+            qry = f"""
+            UPDATE Acc_to_check SET is_rejectable = 1 WHERE id = {acc_id}
+            """
+            self.cursor.execute(qry)
+            self.cnx.commit()
+            self.cursor.execute(f'SELECT user_id FROM Acc_to_check WHERE id = {acc_id}')
+            user_id = self.cursor.fetchone()[0]
+
+            qry1 = f'''
+            INSERT INTO Accounts (user_id, first_name, last_name, fathersname, mothersname, age, contact, Account_id, created_time, location) values {user_id, first_name, last_name, fathersname, mothersname, age, contact, account_id, created_time, location}
+            '''
+            self.cursor.execute(qry1)
+            self.cnx.commit()
+
+            qry2 = f'''SELECT id from Accounts WHERE user_id = {user_id}'''
+            self.cursor.execute(qry2)
+            acc_id1 = self.cursor.fetchone()[0]
+
+            qry3 = f'''INSERT INTO Balance (acc_id, Credit_Amount, Debit_Amount) VALUES ({acc_id1},500,500)'''
+            self.cursor.execute(qry3)
+            self.cnx.commit()
+        except Exception as e:
+            return False
+        else:
+            return True
+
+
+class Transaction(Connection):
+    """docstring for Transaction."""
+
+    def __init__(self, user_id):
+        super(Transaction, self).__init__()
+        self.user_id = user_id
+        qry = f"SELECT Account_id FROM Accounts WHERE user_id = {self.user_id}"
+        self.cursor.execute(qry)
+        self.account_ids = self.cursor.fetchall()
+
+    def transfer_money(self, account_number, amount, receiver_account_number):
+        try:
+            qry =f"""SELECT b.Debit_Amount FROM Balance as b JOIN Accounts as a ON a.id = b.acc_id WHERE a.Account_id='{account_number}'"""
+
+            self.cursor.execute(qry)
+            balance = self.cursor.fetchone()[0]
+            if int(balance) < int(amount):
+                messagebox.showerror('Error', 'Not Enough Balance :(')
+                return False
+
+            qry1 =f"""UPDATE Balance INNER JOIN Accounts ON Accounts.id = Balance.acc_id SET Debit_Amount = '{int(balance)-int(amount)}' WHERE Accounts.Account_id ='{account_number}'"""
+            self.cursor.execute(qry1)
+            self.cnx.commit()
+
+            qry2 =f"""UPDATE Balance INNER JOIN Accounts ON Accounts.id = Balance.acc_id SET Debit_Amount = Credit_Amount + '{amount}' WHERE Accounts.Account_id ='{receiver_account_number}'"""
+            self.cursor.execute(qry2)
+            self.cnx.commit()
+        except Exception as e:
+            return False
+        else:
+            return True
+
+    def load_esewa(self,account_number, amount):
+        try:
+            qry =f"""SELECT b.Debit_Amount FROM Balance as b JOIN Accounts as a ON a.id = b.acc_id WHERE a.Account_id='{account_number}'"""
+
+            self.cursor.execute(qry)
+            balance = self.cursor.fetchone()[0]
+            if int(balance) < int(amount):
+                messagebox.showerror('Error', 'Not Enough Balance :(')
+                return False
+
+            qry1 =f"""UPDATE Balance INNER JOIN Accounts ON Accounts.id = Balance.acc_id SET Debit_Amount = '{int(balance)-int(amount)}' WHERE Accounts.Account_id ='{account_number}'"""
+            self.cursor.execute(qry1)
+            self.cnx.commit()
+
+        except Exception as e:
+            return False
+
+        else:
+            return True
