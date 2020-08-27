@@ -2,11 +2,21 @@
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install PyPDF2 and mysql-connector-python
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install fpdf and mysql-connector-python
 
 ```bash
-pip install PyPDF2
+pip install fpdf
 pip install mysql-connector-python
+```
+
+or activate the virtual enviroment
+```bash
+source virtualenv/bin/activate
+```
+
+And then
+```pip
+pip install -r requirements.txt
 ```
 ## Usage
 
