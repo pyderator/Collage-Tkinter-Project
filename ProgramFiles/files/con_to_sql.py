@@ -241,7 +241,8 @@ class Transaction(Connection):
 
     def transfer_money(self, account_number, amount, receiver_account_number):
         try:
-            qry =f"""SELECT b.Debit_Amount FROM Balance as b JOIN Accounts as a ON a.id = b.acc_id WHERE a.Account_id='{account_number}'"""
+            qry =f"""SELECT b.Debit_Amount FROM Balance as b JOIN Accounts as a ON a.id = b.acc_id 
+            WHERE a.Account_id='{account_number}'"""
 
             self.cursor.execute(qry)
             balance = self.cursor.fetchone()[0]

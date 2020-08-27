@@ -1,3 +1,20 @@
-It is a simple GUI generator made with python tkinter module and has mysql as a backend
+# Bank System Prototype
 
-run main.py at first
+## Installation
+
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install PyPDF2 and mysql-connector-python
+
+```bash
+pip install PyPDF2
+pip install mysql-connector-python
+```
+## Usage
+
+```python
+python main.py
+```
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.

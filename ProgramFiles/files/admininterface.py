@@ -159,7 +159,8 @@ class AdminInt:
 
     def updateinfo(self):
 
-        sql_names = ['First_Name', 'Last_Name', 'Fathers_Name', 'Mothers_Name', 'Age', 'Citizenship_Number', 'Location', 'Contact', 'Education', 'Work','Remarks']
+        sql_names = ['First_Name', 'Last_Name', 'Fathers_Name', 'Mothers_Name', 'Age', 
+        'Citizenship_Number', 'Location', 'Contact', 'Education', 'Work','Remarks']
         new_values = [self.input_first_name.get(),self.input_last_name.get(),
         self.input_fathersname.get(),self.input_mothersname.get(),
         self.input_age.get(),self.input_citizenshipnumber.get(),
@@ -180,6 +181,7 @@ class AdminInt:
 
             # Pointing the self.result to the new_values so that on next update it compares it with
             # the new values instead of the old fetched value.
+
             self.result = new_values
         else:
             messagebox.showerror('Error','Somthing went wrong')
@@ -187,10 +189,12 @@ class AdminInt:
 
     def createacc(self):
 
-        response = AdminInterface().create_user_account(self.account_id, self.input_first_name.get(),self.input_last_name.get(),
-        self.input_fathersname.get(),self.input_mothersname.get(),
-        self.input_age.get(),self.input_contact.get(),str(uuid.uuid4()),str(date.today()),
-        self.input_address.get())
+        response = AdminInterface().create_user_account(self.account_id, self.input_first_name.get(),
+            self.input_last_name.get(),
+            self.input_fathersname.get(),self.input_mothersname.get(),
+            self.input_age.get(),self.input_contact.get(),str(uuid.uuid4()),str(date.today()),
+            self.input_address.get()
+            )
 
         if response:
             messagebox.showinfo('Success','Account Created Successfully')

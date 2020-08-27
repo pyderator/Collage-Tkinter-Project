@@ -75,4 +75,3 @@ class Dashboard:
     def loadesewa(self):
         load_esewa = Toplevel()
         LoadEsewa(load_esewa, self.user_id)
-
